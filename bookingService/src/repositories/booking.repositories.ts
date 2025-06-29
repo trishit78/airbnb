@@ -1,7 +1,8 @@
-import { Prisma } from "@prisma/client";
+import { Prisma,IdempotencyKey } from "@prisma/client";
 
 import prismaClient from "../prisma/client";
-
+import { validate as isValidUUID } from "uuid";
+import { BadRequestError, NotFoundError } from "../utils/errors/app.error";
 
 export async function createBooking (bookingInput:Prisma.BookingCreateInput){
     const booking = await prismaClient.booking.create({
@@ -14,7 +15,7 @@ export async function createBooking (bookingInput:Prisma.BookingCreateInput){
 export async function createIdempotencyKey(key:string,bookingId:number) {
     const idempotencyKey = await prismaClient.idempotencyKey.create({
         data:{
-            key,
+            idemKey: key,
             booking:{
                 connect:{
                     id:bookingId
@@ -25,13 +26,18 @@ export async function createIdempotencyKey(key:string,bookingId:number) {
     return idempotencyKey;
 }
 
-export async function getIdempotencyKey(key:string) {
-    const idempotencyKey = await prismaClient.idempotencyKey.findUnique({
-        where:{
-            key
-        }
-    })
-    return idempotencyKey;
+export async function getIdempotencyKeyWithLock(key:string,tx:Prisma.TransactionClient) {
+    
+    if(!isValidUUID(key)){
+        throw new BadRequestError('invalid idemotency key');
+    }
+    const idempotencyKey:Array<IdempotencyKey> = await tx.$queryRaw`
+        select * from idempotencyKey where idemkey = ${key} for update
+    `
+    if(!idempotencyKey || idempotencyKey.length ==0 ){
+        throw new NotFoundError("idempotency key not found")
+    }
+    return idempotencyKey[0];
 }
 
 export async function getBookingId(bookingId:number) {
@@ -43,8 +49,8 @@ export async function getBookingId(bookingId:number) {
     return booking;
 }
 
-export async function confirmBooking(bookingId:number) {
-    const booking = await prismaClient.booking.update({
+export async function confirmBooking(tx:Prisma.TransactionClient,bookingId:number) {
+    const booking = await tx.booking.update({
         where:{
             id:bookingId
         },
@@ -66,10 +72,10 @@ export async function cancelBooking(bookingId:number) {
     })
     return booking;
 }
-export async function finalizeIdempotencyKey(key:string){
-    const idempotencyKey  =  await prismaClient.idempotencyKey.update({
+export async function finalizeIdempotencyKey(tx:Prisma.TransactionClient,key:string){
+    const idempotencyKey  =  await tx.idempotencyKey.update({
         where:{
-            key
+            idemKey:key
         },
         data:{
             finalized:true
