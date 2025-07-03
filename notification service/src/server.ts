@@ -6,7 +6,10 @@ import { appErrorHandler, genericErrorHandler } from './middlewares/error.middle
 import logger from './config/logger.config';
 import { attachCorrelationIdMiddleware } from './middlewares/correlation.middleware';
 import { setupMailerWorker } from './processors/email.processor';
-import { renderMailTemplate } from './templates/templates.handler';
+//import { renderMailTemplate } from './templates/templates.handler';
+import { addEmailToQueue } from './producers/email.producer';
+//import { NotificationDTO } from './dto/notification.dto';
+//import { renderMailTemplate } from './templates/templates.handler';
 const app = express();
 
 app.use(express.json());
@@ -46,12 +49,23 @@ app.listen(serverConfig.PORT, async () => {
 
     // addEmailToQueue(sampleNotification)
 
-    const response = await renderMailTemplate('welcome',{
-        name:'John Doe',
-        appName:"Booking.com"
+    // const response = await renderMailTemplate('welcome',{
+    //     name:'John Doe',
+    //     appName:"Booking.com"
+    // })
+
+    // console.log(`Rendered email template: ${response}`)
+
+    addEmailToQueue({
+        to:'trishit456@gmail.com',
+        subject:"test email",
+        tempplateId:'welcome',
+        params:{
+            name:"trishit",
+            appName:"Booking App"
+        }
     })
 
-    console.log(`Rendered email template: ${response}`)
 
 
 });
