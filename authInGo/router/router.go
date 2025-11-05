@@ -13,7 +13,7 @@ type Router interface{
 }
 
 
-func SetupRouter(UserRouter Router) *chi.Mux {
+func SetupRouter(UserRouter Router,RoleRouter Router) *chi.Mux {
 	chiRouter := chi.NewRouter()
 
 	chiRouter.Use(middlewares.RateLimiterMiddleware)
@@ -24,6 +24,8 @@ func SetupRouter(UserRouter Router) *chi.Mux {
 	chiRouter.HandleFunc("/photos/*",utils.ProxyToService("https://jsonplaceholder.typicode.com","/photos"))
 
 	UserRouter.Register(chiRouter)
+	RoleRouter.Register(chiRouter)
+	
 	return chiRouter
 }
 

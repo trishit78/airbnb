@@ -51,11 +51,17 @@ func (app *Application) Run() error{
 	us:=services.NewUserService(ur)
 	uc:=controllers.NewUserController(us)
 	uRouter:= router.NewUserRouter(uc)
+
+	rr:=repo.NewRoleRepository(db)
+	rs:=services.NewRoleService(rr)
+	rc:=controllers.NewRoleController(rs)
+	rRouter:= router.NewRoleRouter(rc)
+
 	
 	
 	server:=&http.Server{
 		Addr: app.Config.Addr,
-		Handler: router.SetupRouter(uRouter),
+		Handler: router.SetupRouter(uRouter,rRouter),
 		ReadTimeout: 10 * time.Second,  // set read timeout to 10 sec
 		WriteTimeout: 10 * time.Second,  // // set write timeout to 10 sec
 	}
