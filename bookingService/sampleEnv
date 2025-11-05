@@ -1,0 +1,4 @@
+PORT = 4500
+DATABASE_URL="mysql://root:Trishit@456@localhost:3306/airbnb_booking_dev"
+REDIS_SERVER_URL="redis://localhost:6379"
+LOCK_TTL=60000
