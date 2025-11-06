@@ -13,3 +13,5 @@ type CreateUserDTO struct{
 type GetUserByIdDTO struct{
 	Id int64  `json:"id"  validate:"required"`
 }
+
+

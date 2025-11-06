@@ -25,11 +25,22 @@ type RoleServiceImpl struct {
 	userRoleRepository       repositories.UserRoleRepository
 }
 
-func NewRoleService(roleRepo repositories.RoleRepository) RoleService {
+
+func NewRoleService(roleRepo repositories.RoleRepository, rolePermissionRepo repositories.RolePermissionRepository, userRoleRepo repositories.UserRoleRepository) RoleService {
 	return &RoleServiceImpl{
 		roleRepository:           roleRepo,
+		rolePermissionRepository: rolePermissionRepo,
+		userRoleRepository:       userRoleRepo,
 	}
 }
+
+
+
+// func NewRoleService(roleRepo repositories.RoleRepository) RoleService {
+// 	return &RoleServiceImpl{
+// 		roleRepository:           roleRepo,
+// 	}
+// }
 
 func (s *RoleServiceImpl) GetRoleById(id int64) (*models.Role, error) {
 	return s.roleRepository.GetRoleById(id)

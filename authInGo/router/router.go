@@ -3,6 +3,7 @@ package router
 import (
 	"AuthInGo/controllers"
 	"AuthInGo/middlewares"
+
 	"AuthInGo/utils"
 
 	"github.com/go-chi/chi/v5"

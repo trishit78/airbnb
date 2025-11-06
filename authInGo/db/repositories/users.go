@@ -79,49 +79,31 @@ func (u *UserRepositoryImpl) DeleteByID(id int64) error {
 	fmt.Println("User deleted successfully, rows affected:", rowsAffected)
 	return nil
 }
-
-func (u *UserRepositoryImpl) Create(username string, email string, password string) (*models.User, error) {
+func (u *UserRepositoryImpl) Create(username string, email string, hashedPassword string) (*models.User, error) {
 	query := "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
-
-	result, err := u.db.Exec(query, username, email, password)
+	result, err := u.db.Exec(query, username, email, hashedPassword)
 
 	if err != nil {
-		fmt.Println("Error inserting user:", err)
+		fmt.Println("Error creating user:", err)
 		return nil, err
 	}
 
-	fmt.Println("result is", result)
-	rowsAffected, rowErr := result.RowsAffected()
-
+	lastInsertID, rowErr := result.LastInsertId()
 	if rowErr != nil {
-		fmt.Println("Error getting rows affected:", rowErr)
+		fmt.Println("Error getting last insert ID:", rowErr)
 		return nil, rowErr
 	}
 
-	if rowsAffected == 0 {
-		fmt.Println("No rows were affected, user not created")
-		return nil, nil
-	}
-
-	fmt.Println("User created successfully, rows affected:", rowsAffected)
-	lastInsertID, err := result.LastInsertId()
-	if err != nil {
-		fmt.Println("Error getting last insert ID:", err)
-		return nil, err
-	}
-
-	user, err := u.GetByID(string(lastInsertID))
-
-	if err != nil {
-		fmt.Println("Error fetching user after insert:", err)
-		return nil, err
+	user := &models.User{
+		Id:       lastInsertID,
+		Username: username,
+		Email:    email,
 	}
 
 	fmt.Println("User created successfully:", user)
 
 	return user, nil
 }
-
 func (u *UserRepositoryImpl) GetByID(id string) (*models.User, error) {
 	fmt.Println("fetching user in UserRepository")
 
