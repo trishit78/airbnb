@@ -61,7 +61,16 @@ func RequireAllRoles(roles ...string) func(http.Handler)  http.Handler{
 	return func(next http.Handler)http.Handler{
 		return http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
 
-			userIdStr :=r.Context().Value("userId").(string)
+			val :=r.Context().Value("userID")
+
+			userIdStr, ok := val.(string)
+			fmt.Println(userIdStr)
+
+
+if !ok || userIdStr == "" {
+    http.Error(w, "Unauthorized: user ID missing or invalid", http.StatusUnauthorized)
+    return
+}
 			userId,err:= strconv.ParseInt(userIdStr,10,64)
 			if err!=nil{
 				http.Error(w,"Invalid user ID",http.StatusUnauthorized)
@@ -100,7 +109,14 @@ func RequireAnyRole(roles ...string) func(http.Handler) http.Handler {
 
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			userIdStr := r.Context().Value("userID").(string)
+			val := r.Context().Value("userID")
+			userIdStr,ok:= val.(string)
+			
+			if !ok || userIdStr == "" {
+    http.Error(w, "Unauthorized: user ID missing or invalid", http.StatusUnauthorized)
+    return
+}
+
 			userId, err := strconv.ParseInt(userIdStr, 10, 64)
 			if err != nil {
 				http.Error(w, "Invalid user ID", http.StatusUnauthorized)
