@@ -45,3 +45,10 @@ api flow
 4. service -> hotel.service.ts
 5. repository -> hotel.repository.ts
 6. models -> hotel.ts
+
+async flow
+setup redis
+controller-> producer -> job -> worker/consumer -> service
+
+1. create redis config file
+2. 
