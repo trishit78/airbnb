@@ -46,9 +46,13 @@ api flow
 5. repository -> hotel.repository.ts
 6. models -> hotel.ts
 
+
+
 async flow
 setup redis
 controller-> producer -> job -> worker/consumer -> service
 
 1. create redis config file
-2. 
+2. create a queue , connect it with redis
+3. create a producer, get the payload and add it to the queue
+4. create a processor, get the payload and pass it to the service 

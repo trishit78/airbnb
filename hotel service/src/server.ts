@@ -6,6 +6,7 @@ import { appErrorHandler, genericErrorHandler } from './middlewares/error.middle
 import logger from './config/logger.config';
 import { attachCorrelationIdMiddleware } from './middlewares/correlation.middleware';
 import sequelize from './db/models/sequelize';
+import { setUpRoomGenerationWorker } from './processors/roomGeneration.processor';
 // import Hotel from './db/models/hotel';
 const app = express();
 
@@ -33,6 +34,7 @@ app.listen(serverConfig.PORT, async() => {
     logger.info(`Press Ctrl+C to stop the server.`);
     await sequelize.authenticate(); // to test the connection of the db
     logger.info("database connection has been established");
+    setUpRoomGenerationWorker()
 
 
 {/** here testing the connection and giving the input and fetching the output */}
